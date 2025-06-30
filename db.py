@@ -43,17 +43,16 @@ def insert_task(owner_email: str, title: str):
         "INSERT INTO tasks (owner_email, title) VALUES (%s, %s);",
         (owner_email, title)
     )
-    return cur.fetchone()[0]  # Return the task ID of the newly inserted task
-
+    
 def delete_task(task_id: int):
     cur.execute(
         "DELETE FROM tasks WHERE id = %s;",
-        (task_id)
+        (task_id,)
     )
 def get_tasks(owner_email: str):
     cur.execute(
         "SELECT id, title, is_completed FROM tasks WHERE owner_email = %s;",
-        (owner_email)
+        (owner_email,)
     )
     return cur.fetchall()
 def update_task(task_id: int, title: str, is_completed: bool):
@@ -65,7 +64,7 @@ def update_task(task_id: int, title: str, is_completed: bool):
 def get_task_owner(task_id: int):
     cur.execute(
         "SELECT owner_email FROM tasks WHERE id = %s;",
-        (task_id)
+        (task_id,)
     )
     result = cur.fetchone()
     return result[0] if result else None
@@ -73,7 +72,7 @@ def get_task_owner(task_id: int):
 def get_password_hash(email: str):
     cur.execute(
         "SELECT password FROM users WHERE email = %s;",
-        (email)
+        (email,)
     )
     result = cur.fetchone()
     return result[0] if result else None
