@@ -1,7 +1,6 @@
 import psycopg2
 from psycopg2 import sql
 
-# 1) Veritabanına bağlan
 conn = psycopg2.connect(
     host="localhost",
     port=5432,
@@ -10,13 +9,10 @@ conn = psycopg2.connect(
     password="admin"
 )
 
-# Otomatik commit için:
 conn.autocommit = True
 
-# 2) Cursor oluştur
 cur = conn.cursor()
 
-# 3) Fonksiyonlar
 def create_user_table():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
