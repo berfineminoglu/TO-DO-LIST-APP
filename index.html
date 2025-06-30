@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>To-Do List App</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      body { font-family: sans-serif; margin: 20px; }
+      input, button { margin: 5px; }
+      .task { margin: 10px 0; }
+      .completed { text-decoration: line-through; color: gray; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+      const API_URL = 'http://127.0.0.1:5000'; 
+
+      function App() {
+        const [token, setToken] = useState(null);
+        const [email, setEmail] = useState('');
+        const [view, setView] = useState('auth');
+
+        const handleLogin = (tok, userEmail) => {
+          setToken(tok);
+          setEmail(userEmail);
+          setView('todo');
+        };
+
+        if (view === 'auth') {
+          return <AuthForm onLogin={handleLogin} />;
+        }
+        return <TodoList token={token} email={email} onLogout={() => { setToken(null); setEmail(''); setView('auth'); }} />;
+      }
+
+      function AuthForm({ onLogin }) {
+        const [isRegister, setIsRegister] = useState(false);
+        const [email, setEmail] = useState('');
+        const [password, setPassword] = useState('');
+        const [message, setMessage] = useState('');
+
+        const submit = async (e) => {
+          e.preventDefault();
+          const endpoint = isRegister ? '/register' : '/login';
+          try {
+            const res = await fetch(API_URL + endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Error');
+            if (isRegister) {
+              setMessage('Registration successful. Please log in.');
+              setIsRegister(false);
+            } else {
+              onLogin(data.access_token, email);
+            }
+          } catch (err) {
+            setMessage(err.message);
+          }
+        };
+
+        return (
+          <div>
+            <h2>{isRegister ? 'Register' : 'Login'}</h2>
+            <form onSubmit={submit}>
+              <div>
+                <input type="email" placeholder="Email" value={email}
+                  onChange={e => setEmail(e.target.value)} required />
+              </div>
+              <div>
+                <input type="password" placeholder="Password" value={password}
+                  onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <button type="submit">{isRegister ? 'Register' : 'Login'}</button>
+            </form>
+            {message && <p>{message}</p>}
+            <p>
+              <button onClick={() => { setIsRegister(!isRegister); setMessage(''); }}>
+                {isRegister ? 'Already have an account? Login' : "Don't have an account? Register"}
+              </button>
+            </p>
+          </div>
+        );
+      }
+
+      function TodoList({ token, email, onLogout }) {
+        const [tasks, setTasks] = useState([]);
+        const [newTitle, setNewTitle] = useState('');
+        const [editId, setEditId] = useState(null);
+        const [editTitle, setEditTitle] = useState('');
+        const authHeader = { 'Authorization': 'Bearer ' + token };
+
+        const fetchTasks = async () => {
+          const res = await fetch(`${API_URL}/tasks/?email=${encodeURIComponent(email)}`, {
+            headers: authHeader
+          });
+          const data = await res.json();
+          if (res.ok) setTasks(data);
+        };
+
+        useEffect(() => { fetchTasks(); }, []);
+
+        const addTask = async () => {
+          if (!newTitle) return;
+          await fetch(`${API_URL}/addTask/?email=${encodeURIComponent(email)}`, {
+            method: 'POST',
+            headers: { ...authHeader, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle })
+          });
+          setNewTitle('');
+          fetchTasks();
+        };
+
+        const deleteTask = async (id) => {
+          await fetch(`${API_URL}/deleteTask/?id=${id}`, { method: 'DELETE', headers: authHeader });
+          fetchTasks();
+        };
+
+        const toggleComplete = async (task) => {
+          await fetch(`${API_URL}/updateTask/?id=${task.id}&isCompleted=${!task.is_completed}&title=${encodeURIComponent(task.title)}`, {
+            method: 'PATCH', headers: authHeader
+          });
+          fetchTasks();
+        };
+
+        const startEdit = (task) => {
+          setEditId(task.id);
+          setEditTitle(task.title);
+        };
+        const saveEdit = async () => {
+          await fetch(`${API_URL}/updateTask/?id=${editId}&isCompleted=false&title=${encodeURIComponent(editTitle)}`, {
+            method: 'PATCH', headers: authHeader
+          });
+          setEditId(null);
+          setEditTitle('');
+          fetchTasks();
+        };
+
+        return (
+          <div>
+            <h2>To-Do List for {email}</h2>
+            <button onClick={onLogout}>Logout</button>
+            <div style={{ marginTop: '20px' }}>
+              <input
+                type="text" placeholder="New Task" value={newTitle}
+                onChange={e => setNewTitle(e.target.value)} />
+              <button onClick={addTask}>Add</button>
+            </div>
+            <div>
+              {tasks.map(task => (
+                <div key={task.id} className="task">
+                  <span className={task.is_completed ? 'completed' : ''}>
+                    {task.title}
+                  </span>
+                  <button onClick={() => toggleComplete(task)}>
+                    {task.is_completed ? 'Undo' : 'Complete'}
+                  </button>
+                  <button onClick={() => deleteTask(task.id)}>Delete</button>
+                  <button onClick={() => startEdit(task)}>Edit</button>
+                </div>
+              ))}
+            </div>
+            {editId && (
+              <div style={{ marginTop: '20px' }}>
+                <input
+                  type="text" value={editTitle}
+                  onChange={e => setEditTitle(e.target.value)} />
+                <button onClick={saveEdit}>Save</button>
+                <button onClick={() => setEditId(null)}>Cancel</button>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>
