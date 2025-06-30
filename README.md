@@ -1,175 +1,168 @@
-TO-DO LİST UYGULAMASI
+# To-Do List Uygulaması
 
 Bu proje, tam kapsamlı (fullstack) bir To-Do List web uygulamasıdır. Kullanıcılar hesap oluşturup giriş yaparak kendi yapılacaklar listelerini görüntüleyebilir, ekleme, güncelleme, silme ve tamamlama işlemlerini gerçekleştirebilirler.
 
-İÇİNDEKİLER
+---
 
-ÖZELLİKLER
+## İçindekiler
 
-TEKNOLOJİLER
+1. [Özellikler](#özellikler)
+2. [Teknolojiler](#teknolojiler)
+3. [Ön Koşullar](#ön-koşullar)
+4. [Kurulum](#kurulum)
 
-ÖN KOŞULLAR
+   * [4.1 Veritabanı](#41-veritabanı)
+   * [4.2 Backend](#42-backend)
+   * [4.3 Frontend](#43-frontend)
+5. [Çalıştırma](#çalıştırma)
+6. [API Dokümantasyonu](#api-dokümantasyonu)
+7. [Veritabanı Yapısı](#veritabanı-yapısı)
 
-KURULUM
-4.1 Veritabanı
-4.2 Backend
-4.3 Frontend
+---
 
-ÇALIŞTIRMA
+## Özellikler
 
-API DOKÜMANTASYONU
+* Kullanıcı kaydı ve girişi (JWT ile yetkilendirme)
+* Görev ekleme
+* Görev listeleme
+* Görev güncelleme (başlık ve tamamlanma durumu)
+* Görev silme
+* CORS desteği
+* Şifrelerin güvenli hash ile saklanması
+* Basit React arayüz
 
-VERİTABANI YAPISI
+---
 
-ÖZELLİKLER
+## Teknolojiler
 
-Kullanıcı kaydı ve girişi (JWT ile yetkilendirme)
+* **Backend:** Python, Flask, flask-jwt-extended
+* **Veritabanı:** PostgreSQL (psycopg2)
+* **Frontend:** React, HTML, CSS
+* **Diğer:** werkzeug.security
 
-Görev ekleme
+---
 
-Görev listeleme
+## Ön Koşullar
 
-Görev güncelleme (başlık ve tamamlama durumu)
+* Python 3.8 veya üzeri
+* PostgreSQL 17
 
-Görev silme
+---
 
-CORS desteği
+## Kurulum
 
-Şifrelerin güvenli hash ile saklanması
+### 4.1 Veritabanı
 
-Basit React arayüz
+1. PostgreSQL 17 sunucusunu başlatın.
 
-TEKNOLOJİLER
+2. Aşağıdaki komut ile `to-do-list` isimli veritabanını oluşturun:
 
-Backend: Python, Flask, flask-jwt-extended
+   ```bash
+   createdb to-do-list
+   ```
 
-Veritabanı: PostgreSQL (psycopg2)
+3. `db.py` dosyasındaki bağlantı bilgilerini güncelleyin:
 
-Frontend: React (JSX via Babel), HTML, CSS
+   ```python
+   conn = psycopg2.connect(
+       host="localhost",
+       port=5432,
+       dbname="to-do-list",
+       user="postgres",
+       password="admin"
+   )
+   ```
 
-Diğer: werkzeug.security, flask-cors
+### 4.2 Backend
 
-ÖN KOŞULLAR
+1. Proje dizinine gidin:
 
-Python 3.8 veya üzeri
+   ```bash
+   cd backend
+   ```
 
-PostgreSQL
+2. Sanal ortam oluşturun ve etkinleştirin:
 
-KURULUM
+   ```bash
+   python -m venv venv
+   source venv/bin/activate    # Linux/macOS
+   venv\\Scripts\\activate   # Windows
+   ```
 
-4.1 Veritabanı
+3. Gerekli paketleri yükleyin:
 
-PostgreSQL sunucusunu başlatın.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Terminalde aşağıdaki komutu çalıştırarak veritabanını oluşturun:
-createdb to-do-list
+4. Ortam değişkenlerini ayarlayın (isteğe bağlı `.env` dosyası):
 
-db.py dosyasındaki bağlantı bilgilerini gerektiği gibi güncelleyin:
-conn = psycopg2.connect(host="localhost", port=5432, dbname="to-do-list", user="postgres", password="admin")
+   ```bash
+   export FLASK_APP=app.py
+   export FLASK_ENV=development
+   export JWT_SECRET_KEY="berfin_29_Haziran"
+   ```
 
-4.2 Backend
+### 4.3 Frontend
 
-Proje dizinine gidin: cd backend
+* Proje, tek bir `index.html` dosyası ile çalışır; ek araç kurulumu gerekmez.
+* React bileşenlerini ayrı bir yapı içinde kullanmak isterseniz, Babel veya benzeri araçlarla JSX derlemesi yapabilirsiniz.
 
-Sanal ortam oluşturun: python -m venv venv
+---
 
-Sanal ortamı etkinleştirin:
+## Çalıştırma
 
-Linux/macOS: source venv/bin/activate
+### Backend
 
-Windows: venv\Scripts\activate
-
-Gerekli Python paketlerini yükleyin: pip install -r requirements.txt
-
-Ortam değişkenlerini ayarlayın:
-FLASK_APP=app.py
-FLASK_ENV=development
-JWT_SECRET_KEY="berfin_29_Haziran"
-
-4.3 Frontend
-
-Proje, tek bir index.html dosyası ile çalışır. Frontend için ek araç kurulumu gerekmemektedir.
-
-Eğer React bileşenlerini ayrı bir yapıda kullanmak isterseniz, Babel veya benzeri araçlarla JSX derlemesi yapabilirsiniz.
-
-ÇALIŞTIRMA
-
-Backend:
-
-Sanal ortamı etkinleştirin.
-
+```bash
+source venv/bin/activate
 flask run
-Sunucu http://127.0.0.1:5000 adresinde çalışır.
+```
 
-Frontend:
+Sunucu `http://127.0.0.1:5000` adresinde çalışır.
 
-Tarayıcıda index.html dosyasını açarak veya HTTP sunucusu (Live Server, http-server vb.) üzerinden çalıştırarak erişin.
+### Frontend
 
-API DOKÜMANTASYONU
+* `index.html` dosyasını tarayıcıda açarak veya
+* Bir HTTP sunucusu (ör. Live Server, http-server) üzerinden çalıştırarak erişin.
 
-Temel URL: http://127.0.0.1:5000
+---
 
-Endpoints:
+## API Dokümantasyonu
 
-POST /register
+**Temel URL:** `http://127.0.0.1:5000`
 
-Açıklama: Yeni kullanıcı kaydı
+| Yöntem | Yol                                               | Açıklama                          | İstek Gövdesi                            | Header                          |                                 |
+| ------ | ------------------------------------------------- | --------------------------------- | ---------------------------------------- | ------------------------------- | ------------------------------- |
+| POST   | `/register`                                       | Yeni kullanıcı kaydı              | `{ "email", "password" }`                | -                               |                                 |
+| POST   | `/login`                                          | Kullanıcı girişi, token döner     | `{ "email", "password" }`                | -                               |                                 |
+| GET    | `/tasks/?email=<user_email>`                      | Kullanıcının görevlerini listeler | -                                        | `Authorization: Bearer <token>` |                                 |
+| POST   | `/addTask/?email=<user_email>`                    | Yeni görev ekler                  | `{ "title" }`                            | `Authorization: Bearer <token>` |                                 |
+| DELETE | `/deleteTask/?id=<task_id>`                       | Belirli görevi siler              | -                                        | `Authorization: Bearer <token>` |                                 |
+| PATCH  | \`/updateTask/?id=\<task\_id>\&isCompleted=\<true | false>\&title=<newTitle>\`        | Görev güncelleme (başlık veya tamamlama) | -                               | `Authorization: Bearer <token>` |
 
-İstek gövdesi: { "email", "password" }
+---
 
-Header: none
+## Veritabanı Yapısı
 
-POST /login
+**users** tablosu:
 
-Açıklama: Kullanıcı girişi, token döner
+```sql
+CREATE TABLE users (
+  email TEXT PRIMARY KEY,
+  password TEXT NOT NULL
+);
+```
 
-İstek gövdesi: { "email", "password" }
+**tasks** tablosu:
 
-Header: none
+```sql
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  owner_email TEXT REFERENCES users(email),
+  title TEXT NOT NULL,
+  is_completed BOOLEAN DEFAULT FALSE
+);
+```
 
-GET /tasks/?email=<user_email>
-
-Açıklama: Kullanıcının tüm görevlerini getirir
-
-Header: Authorization: Bearer 
-
-POST /addTask/?email=<user_email>
-
-Açıklama: Yeni görev ekler
-
-İstek gövdesi: { "title" }
-
-Header: Authorization: Bearer 
-
-DELETE /deleteTask/?id=<task_id>
-
-Açıklama: Belirli görevi siler
-
-Header: Authorization: Bearer 
-
-PATCH /updateTask/?id=<task_id>&isCompleted=<true|false>&title=
-
-Açıklama: Görev güncelleme (başlık veya tamamlama durumu)
-
-Header: Authorization: Bearer 
-
-VERİTABANI YAPISI
-
-Users tablosu:
-
-email: TEXT, birincil anahtar
-
-password: TEXT, hash’lenmiş şifre
-
-Tasks tablosu:
-
-id: SERIAL, birincil anahtar
-
-owner_email: TEXT, users.email referansı
-
-title: TEXT, görev başlığı
-
-is_completed: BOOLEAN, varsayılan false
-
-
-
+---
